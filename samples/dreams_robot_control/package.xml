@@ -1,18 +1,14 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>inverted_pendulum_assignment</name>
-  <version>0.0.1</version>
-  <description>ROS2 package for inverted pendulum control assignment</description>
-  
-  <maintainer email="admin@example.com">course_admin</maintainer>
-  <license>Apache License 2.0</license>
+  <name>dreams_robot_control</name>
+  <version>0.0.0</version>
+  <description>TODO: Package description</description>
+  <maintainer email="jnaneshwar.das@gmail.com">jdas</maintainer>
+  <license>TODO: License declaration</license>
 
-  <buildtool_depend>ament_python</buildtool_depend>
-  
   <depend>rclpy</depend>
-  <depend>std_msgs</depend>
-  <depend>numpy</depend>
+  <depend>px4_msgs</depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
@@ -22,4 +18,4 @@
   <export>
     <build_type>ament_python</build_type>
   </export>
-</package> 
+</package>
