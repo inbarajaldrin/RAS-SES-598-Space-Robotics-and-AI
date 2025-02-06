@@ -1,0 +1,127 @@
+<?xml version="1.0"?>
+<robot name="cart_pole">
+    <!-- World Link (dummy root) -->
+    <link name="world"/>
+
+    <material name="blue">
+        <color rgba="0 0 0.8 1"/>
+    </material>
+    <material name="red">
+        <color rgba="0.8 0 0 1"/>
+    </material>
+
+    <!-- Base Link -->
+    <link name="base_link">
+        <visual>
+            <geometry>
+                <box size="5.0 0.2 0.1"/>
+            </geometry>
+            <material name="blue"/>
+        </visual>
+        <collision>
+            <geometry>
+                <box size="5.0 0.2 0.1"/>
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="5.0"/>
+            <inertia ixx="0.1" ixy="0" ixz="0" iyy="0.1" iyz="0" izz="0.1"/>
+        </inertial>
+    </link>
+
+    <!-- World to Base Joint (fixed) -->
+    <joint name="world_to_base" type="fixed">
+        <parent link="world"/>
+        <child link="base_link"/>
+    </joint>
+
+    <!-- Cart Link -->
+    <link name="cart">
+        <visual>
+            <geometry>
+                <box size="0.3 0.2 0.1"/>
+            </geometry>
+            <material name="red"/>
+        </visual>
+        <collision>
+            <geometry>
+                <box size="0.3 0.2 0.1"/>
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="1.0"/>
+            <inertia ixx="0.1" ixy="0" ixz="0" iyy="0.1" iyz="0" izz="0.1"/>
+        </inertial>
+    </link>
+
+    <!-- Pole Link -->
+    <link name="pole">
+        <visual>
+            <origin xyz="0 0 0.5"/>
+            <geometry>
+                <cylinder radius="0.02" length="1.0"/>
+            </geometry>
+            <material name="blue"/>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0.5"/>
+            <geometry>
+                <cylinder radius="0.02" length="1.0"/>
+            </geometry>
+        </collision>
+        <inertial>
+            <origin xyz="0 0 0.5"/>
+            <mass value="1.0"/>
+            <inertia ixx="0.083" ixy="0" ixz="0" iyy="0.083" iyz="0" izz="0.0012"/>
+        </inertial>
+    </link>
+
+    <!-- Cart Joint -->
+    <joint name="cart_to_base" type="prismatic">
+        <parent link="base_link"/>
+        <child link="cart"/>
+        <origin xyz="0 0 0.1"/>
+        <axis xyz="1 0 0"/>
+        <limit lower="-2.5" upper="2.5" effort="1000.0" velocity="1000.0"/>
+        <dynamics damping="5.0" friction="0.0"/>
+    </joint>
+
+    <!-- Pole Joint -->
+    <joint name="pole_joint" type="revolute">
+        <parent link="cart"/>
+        <child link="pole"/>
+        <origin xyz="0 0 0.05"/>
+        <axis xyz="0 1 0"/>
+        <limit lower="-3.14159" upper="3.14159" effort="1000.0" velocity="1000.0"/>
+        <dynamics damping="0.1" friction="0.0"/>
+    </joint>
+
+    <!-- Gazebo Ignition plugins -->
+    <gazebo>
+        <plugin filename="gz-sim-joint-state-publisher-system"
+                name="gz::sim::systems::JointStatePublisher">
+        </plugin>
+        <plugin filename="gz-sim-apply-joint-force-system"
+                name="gz::sim::systems::ApplyJointForce">
+            <joint_name>cart_to_base</joint_name>
+        </plugin>
+    </gazebo>
+
+    <!-- Material properties for Gazebo -->
+    <gazebo reference="base_link">
+        <material>Gazebo/Blue</material>
+    </gazebo>
+    <gazebo reference="cart">
+        <material>Gazebo/Red</material>
+    </gazebo>
+    <gazebo reference="pole">
+        <material>Gazebo/Blue</material>
+    </gazebo>
+    <gazebo reference="world">
+        <gui>
+            <camera>
+                <pose>5 0 1.5 0 1.57 0</pose>
+            </camera>
+        </gui>
+    </gazebo>
+</robot> 

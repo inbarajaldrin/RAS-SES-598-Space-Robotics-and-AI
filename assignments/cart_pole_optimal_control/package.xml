@@ -2,22 +2,28 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>cart_pole_optimal_control</name>
-  <version>0.0.0</version>
-  <description>Cart pole LQR controller with visualization</description>
-  <maintainer email="jnaneshwar.das@gmail.com">jdas</maintainer>
+  <version>0.0.1</version>
+  <description>ROS2 package for cart-pole control using LQR and RL</description>
+  <maintainer email="jdas5@asu.edu">Jnaneshwar Das</maintainer>
   <license>Creative Commons Attribution 4.0</license>
 
+  <buildtool_depend>ament_python</buildtool_depend>
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
   <depend>rclpy</depend>
-  <depend>geometry_msgs</depend>
-  <depend>visualization_msgs</depend>
-  <depend>tf2_ros</depend>
-  <depend>rcl_interfaces</depend>
-  <depend>rqt_reconfigure</depend>
-  <depend>ros_gz_bridge</depend>
-  <depend>ros_gz_sim</depend>
-  <depend>python3-control</depend>
   <depend>std_msgs</depend>
   <depend>sensor_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>ros_gz_bridge</depend>
+  <depend>ros_gz_sim</depend>
+  <depend>ros_gz_interfaces</depend>
+  <depend>visualization_msgs</depend>
+
+  <exec_depend>python3-numpy</exec_depend>
+  <exec_depend>python3-control</exec_depend>
+  <exec_depend>python3-torch</exec_depend>
+  <exec_depend>python3-matplotlib</exec_depend>
+  <exec_depend>rviz2</exec_depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>

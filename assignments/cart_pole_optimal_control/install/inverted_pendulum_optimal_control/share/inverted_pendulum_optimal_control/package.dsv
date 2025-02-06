@@ -1,0 +1,6 @@
+source;share/inverted_pendulum_optimal_control/hook/pythonpath.dsv
+source;share/inverted_pendulum_optimal_control/hook/pythonpath.sh
+source;share/inverted_pendulum_optimal_control/hook/ament_prefix_path.dsv
+source;share/inverted_pendulum_optimal_control/hook/ament_prefix_path.sh
+source;../../build/inverted_pendulum_optimal_control/share/inverted_pendulum_optimal_control/hook/pythonpath_develop.dsv
+source;../../build/inverted_pendulum_optimal_control/share/inverted_pendulum_optimal_control/hook/pythonpath_develop.sh

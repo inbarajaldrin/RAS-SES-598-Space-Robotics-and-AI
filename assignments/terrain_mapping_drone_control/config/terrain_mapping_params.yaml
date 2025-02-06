@@ -1,0 +1,20 @@
+/**:
+  ros__parameters:
+    # Flight parameters
+    mapping_height: 50.0  # meters
+    survey_speed: 2.0    # m/s
+    area_length: 100.0   # meters (X direction)
+    area_width: 100.0    # meters (Y direction)
+    strip_spacing: 10.0  # meters between parallel survey lines
+    min_height: 5.0      # minimum height before landing
+    
+    # Spiral parameters
+    spiral_diameter: 50.0  # meters
+    descent_rate: 0.5     # m/s
+    spiral_period: 20.0   # seconds for one complete revolution
+    
+    # Camera parameters
+    camera_tilt: -45.0   # degrees (negative is downward)
+    image_width: 640     # pixels
+    image_height: 480    # pixels
+    frame_rate: 30.0     # Hz 

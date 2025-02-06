@@ -1,35 +1,76 @@
 from launch import LaunchDescription
-from launch_ros.actions import Node
 from launch.actions import ExecuteProcess
-from ament_index_python.packages import get_package_share_directory
+from launch.substitutions import Command
+from launch_ros.actions import Node
+from launch_ros.substitutions import FindPackageShare
 import os
 
 def generate_launch_description():
-    package_dir = get_package_share_directory('cart_pole_optimal_control')
+    pkg_share = FindPackageShare('cart_pole_optimal_control').find('cart_pole_optimal_control')
+    urdf_model_path = os.path.join(pkg_share, 'models', 'cart_pole', 'model.urdf')
     
     return LaunchDescription([
-        # Start the cart pole controller node
+        # Robot state publisher
+        Node(
+            package='robot_state_publisher',
+            executable='robot_state_publisher',
+            name='robot_state_publisher',
+            output='screen',
+            parameters=[{'robot_description': Command(['cat ', urdf_model_path])}]
+        ),
+
+        # Gazebo
+        ExecuteProcess(
+            cmd=['gz', 'sim', '-r', 'empty.sdf'],
+            output='screen'
+        ),
+
+        # Direct topic bridges
+        Node(
+            package='ros_gz_bridge',
+            executable='parameter_bridge',
+            name='bridge',
+            output='screen',
+            arguments=[
+                # Cart force command (ROS -> Gazebo)
+                '/model/cart_pole/joint/cart_to_base/cmd_force@std_msgs/msg/Float64]gz.msgs.Double',
+                # Joint states (Gazebo -> ROS)
+                '/world/empty/model/cart_pole/joint_state@sensor_msgs/msg/JointState[ignition.msgs.Model',
+                # Clock (Gazebo -> ROS)
+                '/clock@rosgraph_msgs/msg/Clock[ignition.msgs.Clock'
+            ],
+        ),
+
+        # Spawn robot
+        Node(
+            package='ros_gz_sim',
+            executable='create',
+            arguments=[
+                '-topic', 'robot_description',
+                '-name', 'cart_pole',
+                '-allow_renaming', 'true'
+            ],
+            output='screen'
+        ),
+
+        # Controller
         Node(
             package='cart_pole_optimal_control',
-            executable='cart_pole_lqr',
-            name='cart_pole_lqr',
+            executable='lqr_controller',
+            name='lqr_controller',
+            output='screen'
+        ),
+
+        # Earthquake Force Generator
+        Node(
+            package='cart_pole_optimal_control',
+            executable='earthquake_force_generator',
+            name='earthquake_force_generator',
             output='screen',
             parameters=[{
-                'mass_cart': 1.0,
-                'mass_pole': 0.1,
-                'pole_length': 1.0,
-                'gravity': 9.81,
-                'Q_x': 1.0,
-                'Q_theta': 10.0,
-                'R': 1.0,
+                'base_amplitude': 5.0,  # Base force amplitude in Newtons
+                'frequency_range': [0.5, 2.0],  # Frequency range in Hz
+                'update_rate': 50.0  # Update rate in Hz
             }]
-        ),
-        
-        # Start RViz
-        Node(
-            package='rviz2',
-            executable='rviz2',
-            name='rviz2',
-            arguments=['-d', os.path.join(package_dir, 'config', 'cart_pole.rviz')],
-        ),
+        )
     ]) 
