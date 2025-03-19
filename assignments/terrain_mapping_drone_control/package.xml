@@ -15,6 +15,18 @@
   <depend>sensor_msgs</depend>
   <depend>ros_gz_bridge</depend>
   <depend>ros_gz_interfaces</depend>
+  <depend>rtabmap_ros</depend>
+  <depend>rtabmap_slam</depend>
+  <depend>rtabmap_viz</depend>
+  <depend>rtabmap_util</depend>
+  <depend>rviz2</depend>
+  <depend>robot_state_publisher</depend>
+  <depend>joint_state_publisher</depend>
+  <depend>tf2_ros</depend>
+  <depend>cv_bridge</depend>
+  <depend>python3-opencv</depend>
+  <depend>aruco_ros</depend>
+  <depend>aruco_msgs</depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>

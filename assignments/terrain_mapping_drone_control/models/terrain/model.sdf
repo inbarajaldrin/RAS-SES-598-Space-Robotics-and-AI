@@ -9,16 +9,22 @@
                 <pose>0 0 0 0 0 0</pose>  <!-- visual pose relative to link -->
                 <geometry>
                     <mesh>
-                        <uri>meshes/artburysol175.obj</uri>
+                        <uri>meshes/artburysol175.stl</uri>
                         <scale>1.0 1.0 1.0</scale>
                     </mesh>
                 </geometry>
+                <material>
+                    <ambient>0.5 0.5 0.5 1.0</ambient>
+                    <diffuse>0.7 0.7 0.7 1.0</diffuse>
+                    <specular>0.2 0.2 0.2 1.0</specular>
+                    <emissive>0.0 0.0 0.0 1.0</emissive>
+                </material>
             </visual>
             <collision name="collision">
                 <pose>0 0 0 0 0 0</pose>  <!-- collision pose relative to link -->
                 <geometry>
                     <mesh>
-                        <uri>meshes/artburysol175.obj</uri>
+                        <uri>meshes/artburysol175.stl</uri>
                         <scale>1.0 1.0 1.0</scale>
                     </mesh>
                 </geometry>

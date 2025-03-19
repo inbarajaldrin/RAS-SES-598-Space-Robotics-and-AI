@@ -1,1 +1,3 @@
-__pycache__/
+# Ignore all Python compiled bytecode
+**/__pycache__/
+*.pyc

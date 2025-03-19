@@ -1,0 +1,58 @@
+<?xml version="1.0" ?>
+<sdf version="1.8">
+  <model name="cylinder_short">
+    <static>true</static>
+    <link name="link">
+      <pose>0 0 3.5 0 0 0</pose>  <!-- Move cylinder up by half its height (7/2 = 3.5m) -->
+      <visual name="visual">
+        <geometry>
+          <cylinder>
+            <radius>0.5</radius>
+            <length>7.0</length>  <!-- 7m tall -->
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>1 1 1 1</ambient>
+          <diffuse>1 1 1 1</diffuse>
+          <specular>0.1 0.1 0.1 1</specular>
+          <pbr>
+            <metal>
+              <albedo_map>materials/cylinder_texture.png</albedo_map>
+              <roughness>0.8</roughness>
+              <metalness>0.1</metalness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+
+      <!-- ArUco marker visual at the top -->
+      <visual name="aruco_marker">
+        <pose>0 0 3.5 0 0 0</pose>  <!-- Place at the top of cylinder (at 3.5m from link origin) -->
+        <geometry>
+          <box>
+            <size>0.8 0.8 0.001</size>  <!-- Changed from 0.2 to 0.8 to match cylinder model -->
+          </box>
+        </geometry>
+        <material>
+          <ambient>1 1 1 1</ambient>
+          <diffuse>1 1 1 1</diffuse>
+          <specular>0.1 0.1 0.1 1</specular>
+          <pbr>
+            <metal>
+              <albedo_map>materials/aruco_marker_0.png</albedo_map>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+
+      <collision name="collision">
+        <geometry>
+          <cylinder>
+            <radius>0.5</radius>
+            <length>7.0</length>
+          </cylinder>
+        </geometry>
+      </collision>
+    </link>
+  </model>
+</sdf> 

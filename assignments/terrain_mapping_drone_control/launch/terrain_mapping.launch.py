@@ -2,10 +2,8 @@
 
 from launch import LaunchDescription
 from launch_ros.actions import Node
-from launch.actions import DeclareLaunchArgument, ExecuteProcess, IncludeLaunchDescription, TimerAction
-from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import PathJoinSubstitution, LaunchConfiguration
-from launch_ros.substitutions import FindPackageShare
+from launch.actions import DeclareLaunchArgument, ExecuteProcess, TimerAction
+from launch.substitutions import LaunchConfiguration
 from ament_index_python.packages import get_package_share_directory
 import os
 
@@ -17,7 +15,6 @@ def generate_launch_description():
     
     # Get paths
     model_path = os.path.join(pkg_share, 'models')
-    config_path = os.path.join(pkg_share, 'config')
     
     # Set Gazebo model and resource paths
     gz_model_path = os.path.join(pkg_share, 'models')
@@ -31,70 +28,73 @@ def generate_launch_description():
     else:
         os.environ['GZ_SIM_RESOURCE_PATH'] = gz_model_path
 
-    # Set initial drone pose (x y z roll pitch yaw)
-    os.environ['PX4_GZ_MODEL_POSE'] = '5 5 1.2 0 0 0'
+    # Set initial drone pose
+    os.environ['PX4_GZ_MODEL_POSE'] = '0 0 0.1 0 0 0'
     
     # Launch PX4 SITL with x500_gimbal
     px4_sitl = ExecuteProcess(
         cmd=['make', 'px4_sitl', 'gz_x500_gimbal'],
-        cwd='/home/jdas/PX4-Autopilot',
+        cwd=os.environ['HOME'] + '/PX4-Autopilot',
         output='screen'
     )
     
-    # Spawn the terrain model
-    spawn_terrain = Node(
+    # Spawn the cylinder model
+    spawn_cylinder = Node(
         package='ros_gz_sim',
         executable='create',
         arguments=[
-            '-file', os.path.join(model_path, 'terrain', 'model.sdf'),
-            '-name', 'terrain',
-            '-x', '0',
+            '-file', os.path.join(model_path, 'cylinder', 'model.sdf'),
+            '-name', 'cylinder',
+            '-x', '5',  # 5 meters in front of the drone
             '-y', '0',
-            '-z', '0',     # 5 meters below ground level
-            '-R', '1.5708', # Roll (90 degrees)
-            '-P', '0',      # Pitch
-            '-Y', '1.5708'  # Yaw (90 degrees counterclockwise)
+            '-z', '0',  # Base at ground level since the cylinder's origin is at its center
+            '-R', '0',
+            '-P', '0',
+            '-Y', '0'
         ],
         output='screen'
     )
     
-    # Bridge node for gimbal and camera topics
+    # Wrap cylinder spawning in TimerAction
+    delayed_cylinder = TimerAction(
+        period=2.0,
+        actions=[spawn_cylinder]
+    )
+
+    # Bridge node for camera and odometry
     bridge = Node(
         package='ros_gz_bridge',
         executable='parameter_bridge',
         name='bridge',
+        parameters=[{
+            'use_sim_time': True,
+        }],
         arguments=[
-            # Gimbal control topics
-            '/model/x500_gimbal_0/command/gimbal_roll@std_msgs/msg/Float64@gz.msgs.Double',
-            '/model/x500_gimbal_0/command/gimbal_pitch@std_msgs/msg/Float64@gz.msgs.Double',
-            '/model/x500_gimbal_0/command/gimbal_yaw@std_msgs/msg/Float64@gz.msgs.Double',
-            # Camera topics
-            '/camera@sensor_msgs/msg/Image@gz.msgs.Image',
-            '/depth_camera@sensor_msgs/msg/Image@gz.msgs.Image',
-            '/camera_info@sensor_msgs/msg/CameraInfo@gz.msgs.CameraInfo',
-            # Removed problematic PointCloud topic
+            # Camera topics (one-way from Gazebo to ROS)
+            '/camera@sensor_msgs/msg/Image[gz.msgs.Image',
+            '/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo',
+            # PX4 odometry (one-way from Gazebo to ROS)
+            '/model/x500_gimbal_0/odometry_with_covariance@nav_msgs/msg/Odometry[gz.msgs.Odometry',
+            # Clock (one-way from Gazebo to ROS)
+            '/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock',
         ],
         remappings=[
             ('/camera', '/drone_camera'),
-            ('/depth_camera', '/drone_depth_camera'),
-            ('/camera_info', '/drone_camera_info')
+            ('/camera_info', '/drone_camera_info'),
+            ('/model/x500_gimbal_0/odometry_with_covariance', '/fmu/out/vehicle_odometry'),
         ],
         output='screen'
     )
 
-    # Add delays to ensure proper startup sequence
-    delayed_terrain = TimerAction(
-        period=2.0,  # 2 second delay
-        actions=[spawn_terrain]
-    )
-
-    delayed_bridge = TimerAction(
-        period=5.0,  # 5 second delay
-        actions=[bridge]
-    )
-
     return LaunchDescription([
+        DeclareLaunchArgument(
+            'use_sim_time',
+            default_value='True',
+            description='Use simulation (Gazebo) clock if true'),
         px4_sitl,
-        delayed_terrain,
-        delayed_bridge
+        delayed_cylinder,
+        TimerAction(
+            period=3.0,
+            actions=[bridge]
+        )
     ])

@@ -1,115 +1,129 @@
-# Terrain Mapping Drone Control
+# Assignment 3: Rocky Times Challenge - Search, Map, & Analyze
 
-This ROS2 package implements a drone control system for terrain mapping of the Bishop Fault Scarp using ORBSLAM3 and PX4 SITL simulation.
+This ROS2 package implements an autonomous drone system for geological feature detection, mapping, and analysis using an RGBD camera and PX4 SITL simulation.
 
-## Overview
+## Challenge Overview
 
-The package provides a controller that guides a PX4-powered drone in a lawnmower pattern over the Bishop Fault Scarp area while maintaining a constant height. The drone captures images that are processed by ORBSLAM3 for simultaneous localization and mapping (SLAM).
+Students will develop a controller for a PX4-powered drone to efficiently search, map, and analyze cylindrical rock formations in an unknown environment. The drone must identify two rock formations (10m and 7m tall cylinders), estimate their dimensions, and successfully land on top of the taller cylinder.
 
-### Key Features
+### Mission Objectives
+1. Search and locate all cylindrical rock formations
+2. Map and analyze rock dimensions:
+   - Estimate height and diameter of each cylinder
+   - Determine positions in the world frame
+3. Land safely on top of the taller cylinder
+4. Complete mission while logging time and energy performance. 
 
-- Automated takeoff and landing
-- Lawnmower pattern trajectory generation for complete area coverage
-- Integration with ORBSLAM3 for real-time mapping
-- Configurable survey parameters (height, speed, area dimensions)
-- Automatic return to launch point after survey completion
+![Screenshot from 2025-03-04 20-22-35](https://github.com/user-attachments/assets/3548b6da-613a-401d-bf38-e9e3ac4a2a2b)
+
+### Evaluation Criteria (100 points)
+
+The assignment will be evaluated based on:
+- Total time taken to complete the mission
+- Total energy units consumed during operation
+- Accuracy of cylinder dimension estimates
+- Landing precision on the taller cylinder
+- Performance across multiple trials (10 known + 5 unknown scenes)
+
+### Key Requirements
+
+- Autonomous takeoff and search strategy implementation
+- Real-time cylinder detection and dimension estimation
+- Energy-conscious path planning
+- Safe and precise landing on the target cylinder
+- Robust performance across different scenarios
 
 ## Prerequisites
 
 - ROS2 Humble
-- PX4 SITL Simulator
-- ORBSLAM3 ROS2 package
+- PX4 SITL Simulator (Tested with PX4-Autopilot main branch 9ac03f03eb)
+- RTAB-Map ROS2 package
 - OpenCV
 - Python 3.8+
 
-## Installation
+## Repository Setup
 
-1. Clone this package into your ROS2 workspace:
+### If you already have a fork of the course repository:
+
 ```bash
+# Navigate to your local copy of the repository
+cd ~/RAS-SES-598-Space-Robotics-and-AI
+
+# Add the original repository as upstream (if not already done)
+git remote add upstream https://github.com/DREAMS-lab/RAS-SES-598-Space-Robotics-and-AI.git
+
+# Fetch the latest changes from upstream
+git fetch upstream
+
+# Checkout your main branch
+git checkout main
+
+# Merge upstream changes
+git merge upstream/main
+
+# Push the updates to your fork
+git push origin main
+```
+
+### If you don't have a fork yet:
+
+1. Fork the course repository:
+   - Visit: https://github.com/DREAMS-lab/RAS-SES-598-Space-Robotics-and-AI
+   - Click "Fork" in the top-right corner
+   - Select your GitHub account as the destination
+
+2. Clone your fork:
+```bash
+cd ~/
+git clone https://github.com/YOUR_USERNAME/RAS-SES-598-Space-Robotics-and-AI.git
+```
+
+### Create Symlink to ROS2 Workspace
+
+```bash
+# Create symlink in your ROS2 workspace
 cd ~/ros2_ws/src
-git clone <repository_url>
+ln -s ~/RAS-SES-598-Space-Robotics-and-AI/assignments/terrain_mapping_drone_control .
 ```
 
-2. Install dependencies:
+### Copy PX4 Model Files
+
+Copy the custom PX4 model files to the PX4-Autopilot folder
+
 ```bash
+# Navigate to the package
+cd ~/ros2_ws/src/terrain_mapping_drone_control
+
+# Make the setup script executable
+chmod +x scripts/deploy_px4_model.sh
+
+# Run the setup script to copy model files
+./scripts/deploy_px4_model.sh -p /path/to/PX4-Autopilot
+```
+
+## Building and Running
+
+```bash
+# Build the package
 cd ~/ros2_ws
-rosdep install --from-paths src --ignore-src -r -y
+colcon build --packages-select terrain_mapping_drone_control --symlink-install
+
+# Source the workspace
+source install/setup.bash
+
+# Launch the simulation with visualization with your PX4-Autopilot path
+ros2 launch terrain_mapping_drone_control cylinder_landing.launch.py
+
+# OR you can change the default path in the launch file
+        DeclareLaunchArgument(
+            'px4_autopilot_path',
+            default_value=os.environ.get('HOME', '/home/' + os.environ.get('USER', 'user')) + '/PX4-Autopilot',
+            description='Path to PX4-Autopilot directory'),
 ```
-
-3. Build the package:
-```bash
-colcon build --packages-select terrain_mapping_drone_control
-```
-
-4. Source the workspace:
-```bash
-source ~/ros2_ws/install/setup.bash
-```
-
-## Usage
-
-1. Launch the complete system (PX4 SITL, ORBSLAM3, and the controller):
-```bash
-ros2 launch terrain_mapping_drone_control terrain_mapping.launch.py
-```
-
-### Manual Camera Bridge Setup
-If you need to manually bridge the Gazebo camera topics to ROS2, you can use the following commands:
-```bash
-# Bridge RGB camera
-ros2 run ros_gz_bridge parameter_bridge /camera@sensor_msgs/msg/Image@gz.msgs.Image
-
-# Bridge depth camera
-ros2 run ros_gz_bridge parameter_bridge /depth_camera@sensor_msgs/msg/Image@gz.msgs.Image
-
-# Bridge camera info
-ros2 run ros_gz_bridge parameter_bridge /camera_info@sensor_msgs/msg/CameraInfo@gz.msgs.CameraInfo
-
-# Bridge point cloud
-ros2 run ros_gz_bridge parameter_bridge /depth_camera/points@sensor_msgs/msg/PointCloud2@gz.msgs.PointCloud
-```
-
-2. Monitor the progress:
-```bash
-ros2 topic echo /terrain_mapping_controller/status
-```
-
-3. View the ORBSLAM3 visualization:
-```bash
-ros2 run rqt_image_view rqt_image_view
-```
-
-## Configuration
-
-The package behavior can be configured through the following files:
-
-- `config/terrain_mapping_params.yaml`: Main configuration file for flight parameters
-- `config/camera_calibration.yaml`: Camera calibration parameters for ORBSLAM3
-- `launch/terrain_mapping.launch.py`: Launch file configuration
-
-### Key Parameters
-
-- `mapping_height`: Flight altitude in meters
-- `survey_speed`: Drone velocity during mapping
-- `area_length`: Length of the survey area (X direction)
-- `area_width`: Width of the survey area (Y direction)
-- `strip_spacing`: Distance between parallel survey lines
-
-## Output
-
-The system generates the following outputs:
-
-1. ORBSLAM3 trajectory and map data
-2. Flight telemetry logs
-3. Captured images
-4. Generated point cloud of the terrain
-
-Data is saved to the path specified in the configuration file.
+## Extra credit -- 3D reconstruction (50 points)
+Use RTAB-Map or a SLAM ecosystem of your choice to map both rocks, and export the world as a mesh file, and upload to your repo. Use git large file system (LFS) if needed. 
 
 ## License
 
-Apache License 2.0
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request. 
+This assignment is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License (CC BY-NC-SA 4.0). 
+For more details: https://creativecommons.org/licenses/by-nc-sa/4.0/ 

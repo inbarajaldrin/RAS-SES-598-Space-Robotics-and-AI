@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sdf version='1.9'>
+  <model name='x500_depth'>
+    <include merge='true'>
+      <uri>x500</uri>
+    </include>
+    <include merge='true'>
+      <uri>model://OakD-Lite-Modify</uri>
+      <pose>.12 .03 .242 0 0 0</pose>
+    </include>
+    <joint name="CameraJoint" type="fixed">
+      <parent>base_link</parent>
+      <child>OakD-Lite-Modify/base_link</child>
+      <pose relative_to="base_link">.12 .03 .242 0 0 0</pose>
+    </joint>
+
+    <!-- Mono Camera Link -->
+    <link name="mono_camera_link">
+      <pose>0 0 0.15 0 1.5707963267948966 0</pose>
+      <inertial>
+        <mass>0.050</mass>
+        <inertia>
+          <ixx>0.00004</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.00004</iyy>
+          <iyz>0</iyz>
+          <izz>0.00004</izz>
+        </inertia>
+      </inertial>
+      <visual name="mono_camera_visual/housing">
+        <geometry>
+          <box>
+            <size>0.02 0.04 0.04</size>
+          </box>
+        </geometry>
+      </visual>
+      <visual name="mono_camera_visual/lens">
+        <pose>0.015 0 0 0 1.5707 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.008</radius>
+            <length>0.01</length>
+          </cylinder>
+        </geometry>
+      </visual>
+      <visual name="mono_camera_visual/lens_glass">
+        <pose>0.014 0 0 0 0 0</pose>
+        <geometry>
+          <sphere>
+            <radius>0.0079</radius>
+          </sphere>
+        </geometry>
+        <material>
+          <ambient>.4 .4 .5 .95</ambient>
+          <diffuse>.4 .4 .5 .95</diffuse>
+          <specular>1 1 1 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+
+      <sensor name="mono_camera" type="camera">
+        <camera>
+          <horizontal_fov>1.204</horizontal_fov>
+          <image>
+            <width>800</width>
+            <height>600</height>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>100</far>
+          </clip>
+          <camera_info_topic>mono_camera/camera_info</camera_info_topic>
+          <optical_frame_id>mono_camera_link</optical_frame_id> 
+        </camera>
+        <always_on>1</always_on>
+        <update_rate>30</update_rate>
+        <visualize>true</visualize>
+        <topic>mono_camera</topic>
+      </sensor>
+    </link>
+
+    <!-- Mono Camera Joint -->
+    <joint name="mono_camera_joint" type="fixed">
+      <parent>base_link</parent>
+      <child>mono_camera_link</child>
+    </joint>
+
+  </model>
+</sdf>

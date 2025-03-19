@@ -21,7 +21,6 @@ setup(
     entry_points={
         'console_scripts': [
             'circular_trajectory_controller = dreams_robot_control.circular_trajectory_controller:main',
-            'figure_eight_trajectory_controller = dreams_robot_control.figure_eight_trajectory_controller:main',
         ],
     },
 )
