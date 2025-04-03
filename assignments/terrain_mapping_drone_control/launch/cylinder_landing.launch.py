@@ -76,22 +76,22 @@ def generate_launch_description():
         }],
         arguments=[
             # Front RGB Camera
-            '/rgb_camera@sensor_msgs/msg/Image[gz.msgs.Image',
-            '/rgb_camera/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo',
+            '/rgb_camera@sensor_msgs/msg/Image@gz.msgs.Image',
+            '/rgb_camera/camera_info@sensor_msgs/msg/CameraInfo@gz.msgs.CameraInfo',
             
             # Front Depth Camera
-            '/depth_camera@sensor_msgs/msg/Image[gz.msgs.Image',
-            # '/depth_camera/depth_image@sensor_msgs/msg/Image[gz.msgs.Image',
-            '/depth_camera/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked',
-            '/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo',
+            '/depth_camera@sensor_msgs/msg/Image@gz.msgs.Image',
+            # '/depth_camera/depth_image@sensor_msgs/msg/Image@gz.msgs.Image',
+            '/depth_camera/points@sensor_msgs/msg/PointCloud2@gz.msgs.PointCloudPacked',
+            '/camera_info@sensor_msgs/msg/CameraInfo@gz.msgs.CameraInfo',
             
             # Down Mono Camera
-            '/mono_camera@sensor_msgs/msg/Image[gz.msgs.Image',
-            '/mono_camera/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo',
+            '/mono_camera@sensor_msgs/msg/Image@gz.msgs.Image',
+            '/mono_camera/camera_info@sensor_msgs/msg/CameraInfo@gz.msgs.CameraInfo',
             
             # Clock and Odometry
-            '/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock',
-            # '/model/x500_depth_mono_0/odometry_with_covariance@nav_msgs/msg/Odometry[gz.msgs.OdometryWithCovariance',
+            '/clock@rosgraph_msgs/msg/Clock@gz.msgs.Clock',
+            '/model/x500_depth_mono_0/odometry_with_covariance@nav_msgs/msg/Odometry@gz.msgs.OdometryWithCovariance',
         ],
         remappings=[
             # Front RGB Camera remappings
@@ -109,7 +109,7 @@ def generate_launch_description():
             ('/mono_camera/camera_info', '/drone/down_mono/camera_info'),
             
             # Odometry remapping
-            # ('/model/x500_depth_mono_0/odometry_with_covariance', '/fmu/out/vehicle_odometry'),
+            ('/model/x500_depth_mono_0/odometry_with_covariance', '/fmu/out/vehicle_odometry'),
         ],
         output='screen'
     )

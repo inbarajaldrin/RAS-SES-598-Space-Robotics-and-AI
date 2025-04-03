@@ -39,7 +39,7 @@
           <specular>0.1 0.1 0.1 1</specular>
           <pbr>
             <metal>
-              <albedo_map>materials/aruco_marker_0.png</albedo_map>
+              <albedo_map>materials/aruco_marker_1.png</albedo_map>
             </metal>
           </pbr>
         </material>

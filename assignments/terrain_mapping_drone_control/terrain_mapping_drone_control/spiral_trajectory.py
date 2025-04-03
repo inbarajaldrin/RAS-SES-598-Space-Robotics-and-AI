@@ -60,8 +60,8 @@ class SpiralTrajectory(Node):
         self.SPIRAL_DIAMETER = 35.0  # meters
         self.DESCENT_RATE = 0.5    # m/s
         self.SPIRAL_PERIOD = 10.0   # seconds for one complete revolution
-        self.MIN_HEIGHT = 5.0       # minimum height before landing
-        self.HEIGHT_REACHED_THRESHOLD = 0.3  # meters
+        self.MIN_HEIGHT = 2.5      # minimum height before landing
+        self.HEIGHT_REACHED_THRESHOLD = 0.5  # meters
         
         # State machine
         self.state = "TAKEOFF"  # States: TAKEOFF, SPIRAL, LAND
@@ -227,13 +227,26 @@ class SpiralTrajectory(Node):
                 )
 
         elif self.state == "LAND":
-            self.publish_trajectory_setpoint(
-                x=0.0,
-                y=0.0,
-                z=0.0,
-                yaw=0.0
-            )
-            self.get_logger().info("Landing...")
+            if not hasattr(self, 'landing_setpoint_sent'):
+                self.get_logger().info("Sending return-to-origin setpoint before landing...")
+                self.publish_trajectory_setpoint(x=0.0, y=0.0, z=-self.MIN_HEIGHT, yaw=0.0)
+                self.landing_setpoint_sent = True
+
+            # Wait until drone reaches near (0, 0)
+            current_pos = self.vehicle_odometry.position
+            distance_xy = math.sqrt(current_pos[0]**2 + current_pos[1]**2)
+
+            if distance_xy < 1.0:  # within 1 meter of (0, 0)
+                if not hasattr(self, 'land_command_sent'):
+                    self.get_logger().info("Sending LAND command to PX4 at center")
+                    self.publish_vehicle_command(VehicleCommand.VEHICLE_CMD_NAV_LAND)
+                    self.land_command_sent = True
+
+        # elif self.state == "LAND":
+        #     if not hasattr(self, 'land_command_sent'):
+        #         self.get_logger().info("Sending LAND command to PX4")
+        #         self.publish_vehicle_command(VehicleCommand.VEHICLE_CMD_NAV_LAND)
+        #         self.land_command_sent = True
 
         self.offboard_setpoint_counter += 1
 
